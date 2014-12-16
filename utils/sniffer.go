@@ -24,7 +24,7 @@ func NewSniffer(writer io.Writer) Sniffer {
 
 func (s *sniffer) Write(data []byte) (n int, err error) {
 	n, err = s.writer.Write(data)
-	s.data.Write(data[0:n])
+	s.data.Write(data[:n])
 	return
 }
 
