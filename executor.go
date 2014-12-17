@@ -41,10 +41,7 @@ func (e *executor) Execute(c Command) (string, string, int, error) {
 }
 
 func (e *executor) buildExecCommand(c Command) (*exec.Cmd, Sniffer, Sniffer) {
-	execCmd := &exec.Cmd{
-		Path: c.Name,
-		Args: c.Args,
-	}
+	execCmd := exec.Command(c.Name, c.Args...)
 
 	stdoutSniffer := e.buildSniffer(c.Stdout)
 	execCmd.Stdout = stdoutSniffer
