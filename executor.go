@@ -1,4 +1,4 @@
-package executor
+package main
 
 import (
 	"fmt"
@@ -14,6 +14,7 @@ import (
 
 type Executor interface {
 	Execute(c Command) (stdout, stderr string, exitCode int, err error)
+	ExecuteAsync(c Command) <-chan CommandResult
 }
 
 type executor struct{}
@@ -23,21 +24,47 @@ func NewExecutor() Executor {
 }
 
 func (e *executor) Execute(c Command) (string, string, int, error) {
-	execCmd, stdout, stderr := e.buildExecCommand(c)
+	result := <-e.executeCommand(c)
+	return result.Stdout, result.Stderr, result.ExitCode, result.Error
+}
 
-	err := execCmd.Start()
-	if err != nil {
-		return "", "", -1, err
-	}
+func (e *executor) ExecuteAsync(c Command) <-chan CommandResult {
+	return e.executeCommand(c)
+}
 
-	err = execCmd.Wait()
+func (e *executor) executeCommandAsync(c Command) <-chan CommandResult {
+	result := make(chan CommandResult)
 
-	exitStatus := -1
+	go func() {
+		execCmd, stdout, stderr := e.buildExecCommand(c)
 
-	waitStatus := execCmd.ProcessState.Sys().(syscall.WaitStatus)
-	exitStatus = waitStatus.ExitStatus()
+		err := execCmd.Start()
+		if err != nil {
+			result <- CommandResult{
+				Stdout:   "",
+				Stderr:   "",
+				ExitCode: -1,
+				Error:    err,
+			}
+		}
 
-	return string(stdout.SniffedData()), string(stderr.SniffedData()), exitStatus, err
+		err = execCmd.Wait()
+
+		exitCode := -1
+
+		waitStatus := execCmd.ProcessState.Sys().(syscall.WaitStatus)
+		exitCode = waitStatus.ExitStatus()
+
+		result <- CommandResult{
+			Stdout:   string(stdout.SniffedData()),
+			Stderr:   string(stderr.SniffedData()),
+			ExitCode: exitCode,
+			Error:    err,
+		}
+	}()
+
+	return result
+
 }
 
 func (e *executor) buildExecCommand(c Command) (*exec.Cmd, Sniffer, Sniffer) {

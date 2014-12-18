@@ -1,4 +1,4 @@
-package executor
+package model
 
 import (
 	"io"
@@ -14,4 +14,11 @@ type Command struct {
 	Stdin  io.Reader
 	Stdout io.Writer
 	Stderr io.Writer
+}
+
+type CommandResult struct {
+	Stdout   string
+	Stderr   string
+	ExitCode int
+	Error    error
 }
