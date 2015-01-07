@@ -78,6 +78,10 @@ func (e *executor) executeCommandAsync(c Command) <-chan CommandResult {
 func (e *executor) buildExecCommand(c Command) (*exec.Cmd, Sniffer, Sniffer) {
 	execCmd := exec.Command(c.Name, c.Args...)
 
+	if c.Stdin != nil {
+		execCmd.Stdin = c.Stdin
+	}
+
 	stdoutSniffer := e.buildSniffer(c.Stdout)
 	execCmd.Stdout = stdoutSniffer
 	stderrSniffer := e.buildSniffer(c.Stderr)
