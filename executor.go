@@ -1,4 +1,4 @@
-package main
+package executor
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 )
 
 type Executor interface {
-	Execute(c Command) (stdout, stderr string, exitCode int, err error)
+	Execute(c Command) (stdout string, stderr string, exitCode int, err error)
 	ExecuteAsync(c Command) <-chan CommandResult
 }
 

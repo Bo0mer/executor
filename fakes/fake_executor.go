@@ -6,19 +6,19 @@ import (
 
 	"github.com/Bo0mer/executor"
 	. "github.com/Bo0mer/executor/model"
-	. "github.com/Bo0mer/executor/utils"
 )
 
 type FakeExecutor struct {
-	ExecuteStub        func(c Command) (stdout, stderr string, exitCode int, err error)
+	ExecuteStub        func(c Command) (stdout string, stderr string, exitCode int, err error)
 	executeMutex       sync.RWMutex
 	executeArgsForCall []struct {
 		c Command
 	}
 	executeReturns struct {
 		result1 string
-		result2 int
-		result3 error
+		result2 string
+		result3 int
+		result4 error
 	}
 	ExecuteAsyncStub        func(c Command) <-chan CommandResult
 	executeAsyncMutex       sync.RWMutex
@@ -30,7 +30,7 @@ type FakeExecutor struct {
 	}
 }
 
-func (fake *FakeExecutor) Execute(c Command) (stdout, stderr string, exitCode int, err error) {
+func (fake *FakeExecutor) Execute(c Command) (stdout string, stderr string, exitCode int, err error) {
 	fake.executeMutex.Lock()
 	fake.executeArgsForCall = append(fake.executeArgsForCall, struct {
 		c Command
@@ -39,7 +39,7 @@ func (fake *FakeExecutor) Execute(c Command) (stdout, stderr string, exitCode in
 	if fake.ExecuteStub != nil {
 		return fake.ExecuteStub(c)
 	} else {
-		return fake.executeReturns.result1, fake.executeReturns.result2, fake.executeReturns.result3
+		return fake.executeReturns.result1, fake.executeReturns.result2, fake.executeReturns.result3, fake.executeReturns.result4
 	}
 }
 
@@ -55,13 +55,14 @@ func (fake *FakeExecutor) ExecuteArgsForCall(i int) Command {
 	return fake.executeArgsForCall[i].c
 }
 
-func (fake *FakeExecutor) ExecuteReturns(result1 string, result2 int, result3 error) {
+func (fake *FakeExecutor) ExecuteReturns(result1 string, result2 string, result3 int, result4 error) {
 	fake.ExecuteStub = nil
 	fake.executeReturns = struct {
 		result1 string
-		result2 int
-		result3 error
-	}{result1, result2, result3}
+		result2 string
+		result3 int
+		result4 error
+	}{result1, result2, result3, result4}
 }
 
 func (fake *FakeExecutor) ExecuteAsync(c Command) <-chan CommandResult {
@@ -96,4 +97,4 @@ func (fake *FakeExecutor) ExecuteAsyncReturns(result1 <-chan CommandResult) {
 	}{result1}
 }
 
-var _ main.Executor = new(FakeExecutor)
+var _ executor.Executor = new(FakeExecutor)
