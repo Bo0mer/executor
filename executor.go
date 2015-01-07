@@ -24,12 +24,12 @@ func NewExecutor() Executor {
 }
 
 func (e *executor) Execute(c Command) (string, string, int, error) {
-	result := <-e.executeCommand(c)
+	result := <-e.executeCommandAsync(c)
 	return result.Stdout, result.Stderr, result.ExitCode, result.Error
 }
 
 func (e *executor) ExecuteAsync(c Command) <-chan CommandResult {
-	return e.executeCommand(c)
+	return e.executeCommandAsync(c)
 }
 
 func (e *executor) executeCommandAsync(c Command) <-chan CommandResult {
