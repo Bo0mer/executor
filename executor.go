@@ -49,6 +49,14 @@ func (e *executor) executeCommandAsync(c Command) <-chan CommandResult {
 		}
 
 		err = execCmd.Wait()
+		if err != nil {
+			result <- CommandResult{
+				Stdout:   "",
+				Stderr:   "",
+				ExitCode: -1,
+				Error:    err,
+			}
+		}
 
 		exitCode := -1
 
