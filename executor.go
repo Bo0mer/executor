@@ -19,15 +19,18 @@ type Executor interface {
 
 type executor struct{}
 
+// Returns new Executor
 func NewExecutor() Executor {
 	return &executor{}
 }
 
+// Executes command synchronous. Returns stdout, stderr, exit_code, error.
 func (e *executor) Execute(c Command) (string, string, int, error) {
 	result := <-e.executeCommandAsync(c)
 	return result.Stdout, result.Stderr, result.ExitCode, result.Error
 }
 
+// Executes command asynchronous. Returns channel to which the result is sent when ready.
 func (e *executor) ExecuteAsync(c Command) <-chan CommandResult {
 	return e.executeCommandAsync(c)
 }
