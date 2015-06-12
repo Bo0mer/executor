@@ -54,8 +54,8 @@ func (e *executor) executeCommandAsync(c Command) <-chan CommandResult {
 		err = execCmd.Wait()
 		if err != nil {
 			result <- CommandResult{
-				Stdout:   "",
-				Stderr:   "",
+				Stdout:   string(stdout.SniffedData()),
+				Stderr:   string(stdout.SniffedData()),
 				ExitCode: -1,
 				Error:    err,
 			}
